@@ -1,3 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
   package="com.example.kiosk_flutter">
+  <application>
+    <!-- Activities are defined in kioskmode_native module or by the consuming app -->
+  </application>
 </manifest>

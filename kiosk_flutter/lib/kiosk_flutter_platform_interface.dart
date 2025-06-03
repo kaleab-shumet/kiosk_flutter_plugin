@@ -30,4 +30,25 @@ abstract class KioskFlutterPlatform extends PlatformInterface {
   Future<String?> getDummyMessage() {
     throw UnimplementedError('getDummyMessage() has not been implemented.');
   }
+
+
+  Future<List<Map<String, String?>>> getMissingPermissions() {
+    throw UnimplementedError('getMissingPermissions() has not been implemented.');
+  }
+
+  Future<void> openPermissionSettings(String permissionType) {
+    throw UnimplementedError('openPermissionSettings() has not been implemented.');
+  }
+
+  Future<bool?> isKioskModeActive() {
+    throw UnimplementedError('isKioskModeActive() has not been implemented.');
+  }
+
+  Future<void> startKioskMode() {
+    throw UnimplementedError('startKioskMode() has not been implemented.');
+  }
+
+  Future<void> stopKioskMode() {
+    throw UnimplementedError('stopKioskMode() has not been implemented.');
+  }
 }

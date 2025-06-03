@@ -41,6 +41,7 @@ android {
     sourceSets {
         main.java.srcDirs += "src/main/kotlin"
         main.java.srcDirs += "kioskmode_native/src/main/java" // Added for DummyNative.java
+        main.res.srcDirs += "kioskmode_native/src/main/res"   // Explicitly add res for kioskmode_native
         test.java.srcDirs += "src/test/kotlin"
     }
 

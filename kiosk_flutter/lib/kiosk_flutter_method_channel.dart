@@ -20,4 +20,33 @@ class MethodChannelKioskFlutter extends KioskFlutterPlatform {
     final String? message = await methodChannel.invokeMethod<String>('getDummyMessage');
     return message;
   }
+
+  @override
+  Future<List<Map<String, String?>>> getMissingPermissions() async {
+    final List<dynamic>? permissions = await methodChannel.invokeMethod<List<dynamic>>('getMissingPermissions');
+    return permissions?.map((p) => Map<String, String?>.from(p as Map)).toList() ?? [];
+  }
+
+  @override
+  Future<void> openPermissionSettings(String permissionType) async {
+    await methodChannel.invokeMethod('openPermissionSettings', <String, dynamic>{
+      'permissionType': permissionType,
+    });
+  }
+
+  @override
+  Future<bool?> isKioskModeActive() async {
+    final bool? isActive = await methodChannel.invokeMethod<bool>('isKioskModeActive');
+    return isActive;
+  }
+
+  @override
+  Future<void> startKioskMode() async {
+    await methodChannel.invokeMethod('startKioskMode');
+  }
+
+  @override
+  Future<void> stopKioskMode() async {
+    await methodChannel.invokeMethod('stopKioskMode');
+  }
 }
