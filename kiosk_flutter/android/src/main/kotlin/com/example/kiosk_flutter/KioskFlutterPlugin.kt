@@ -107,6 +107,31 @@ class KioskFlutterPlugin: FlutterPlugin, MethodCallHandler, ActivityAware {
                 result.error("SettingsError", "Failed to open permission settings", e.toString())
             }
         }
+        "isSetAsDefaultLauncher" -> {
+            try {
+                result.success(kioskManager.isSetAsDefaultLauncher())
+            } catch (e: Exception) {
+                result.error("IsDefaultLauncherError", "Failed to check default launcher status", e.toString())
+            }
+        }
+        "openSettings" -> {
+            val settingString = call.argument<String>("setting")
+            if (settingString == null) {
+                result.error("ArgsError", "'setting' argument is missing or not a string", null)
+                return
+            }
+            val currentActivity = activity
+            if (currentActivity == null) {
+                result.error("ActivityError", "Activity not available to open settings.", null)
+                return
+            }
+            try {
+                kioskManager.openSettings(currentActivity, settingString)
+                result.success(null)
+            } catch (e: Exception) {
+                result.error("OpenSettingsError", "Failed to open settings: $settingString", e.toString())
+            }
+        }
         else -> {
             result.notImplemented()
         }

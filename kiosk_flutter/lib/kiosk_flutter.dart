@@ -30,4 +30,12 @@ class KioskFlutter {
   Future<void> stopKioskMode() {
     return KioskFlutterPlatform.instance.stopKioskMode();
   }
+
+  Future<bool?> isSetAsDefaultLauncher() {
+    return KioskFlutterPlatform.instance.isSetAsDefaultLauncher();
+  }
+
+  Future<void> openSettings(String setting) {
+    return KioskFlutterPlatform.instance.openSettings(setting);
+  }
 }

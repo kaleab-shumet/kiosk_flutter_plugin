@@ -51,4 +51,12 @@ abstract class KioskFlutterPlatform extends PlatformInterface {
   Future<void> stopKioskMode() {
     throw UnimplementedError('stopKioskMode() has not been implemented.');
   }
+
+  Future<bool?> isSetAsDefaultLauncher() {
+    throw UnimplementedError('isSetAsDefaultLauncher() has not been implemented.');
+  }
+
+  Future<void> openSettings(String setting) {
+    throw UnimplementedError('openSettings() has not been implemented.');
+  }
 }

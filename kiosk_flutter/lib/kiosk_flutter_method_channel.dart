@@ -49,4 +49,17 @@ class MethodChannelKioskFlutter extends KioskFlutterPlatform {
   Future<void> stopKioskMode() async {
     await methodChannel.invokeMethod('stopKioskMode');
   }
+
+  @override
+  Future<bool?> isSetAsDefaultLauncher() async {
+    final bool? isDefault = await methodChannel.invokeMethod<bool>('isSetAsDefaultLauncher');
+    return isDefault;
+  }
+
+  @override
+  Future<void> openSettings(String setting) async {
+    await methodChannel.invokeMethod('openSettings', <String, dynamic>{
+      'setting': setting,
+    });
+  }
 }

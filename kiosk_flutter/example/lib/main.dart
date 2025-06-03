@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 import 'package:kiosk_flutter/kiosk_flutter.dart';
+import 'permissions_section.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,18 +16,23 @@ class MyApp extends StatefulWidget {
   State<MyApp> createState() => _MyAppState();
 }
 
+
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
-  List<Map<String, String?>> _missingPermissions = [];
+  // Corrected type for _missingPermissions, assuming getMissingPermissions returns List<Map<String, String?>>
+  // where each map has 'name', 'label', 'type'. If it's just List<String> of permission names, adjust accordingly.
+  List<Map<String, String?>> _missingPermissions = []; 
   final _kioskFlutterPlugin = KioskFlutter();
   bool _isKioskModeActive = false;
   String _kioskModeStatusText = 'Kiosk Mode: Unknown';
+  bool _isDefaultLauncher = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _fetchMissingPermissions();
-    _getKioskModeStatus();
+    _fetchMissingPermissions(); // This will also call _getKioskModeStatus
+    _checkIfDefaultLauncher();
+    // _getKioskModeStatus(); // Called by _fetchMissingPermissions
   }
 
   @override
@@ -38,21 +44,24 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      _fetchMissingPermissions();
-      _getKioskModeStatus();
+      _fetchMissingPermissions(); // This will also call _getKioskModeStatus
+      _checkIfDefaultLauncher();
+      // _getKioskModeStatus(); // Called by _fetchMissingPermissions
     }
   }
 
   Future<void> _fetchMissingPermissions() async {
     List<Map<String, String?>>? permissions;
     try {
+      // Assuming getMissingPermissions returns List<Map<String, String?>>
+      // If it returns List<String> (permission names), the type of _missingPermissions and this logic needs to change.
       permissions = await _kioskFlutterPlugin.getMissingPermissions();
     } on PlatformException catch (e) {
       debugPrint('Failed to get missing permissions: ${e.message}');
-      permissions = [];
+      permissions = []; // Default to empty list on error
     } catch (e) {
       debugPrint('Failed to get missing permissions: ${e.toString()}');
-      permissions = [];
+      permissions = []; // Default to empty list on error
     }
 
     if (!mounted) return;
@@ -70,8 +79,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       isActive = await _kioskFlutterPlugin.isKioskModeActive();
     } on PlatformException catch (e) {
       debugPrint('Failed to get kiosk mode status: ${e.message}');
+      // isActive remains null, will be handled below
     } catch (e) {
       debugPrint('Failed to get kiosk mode status: ${e.toString()}');
+      // isActive remains null, will be handled below
     }
 
     if (!mounted) return;
@@ -82,13 +93,40 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     });
   }
 
+  Future<void> _checkIfDefaultLauncher() async {
+    bool? isDefault;
+    try {
+      isDefault = await _kioskFlutterPlugin.isSetAsDefaultLauncher();
+    } catch (e) {
+      debugPrint('Failed to check if default launcher: $e');
+      // isDefault remains null, will be handled below
+    }
+    if (mounted) {
+      setState(() {
+        _isDefaultLauncher = isDefault ?? false;
+      });
+    }
+  }
+
+  Future<void> _openHomeSettings() async {
+    try {
+      // Ensure your plugin has a method like openSettings or a specific one for default apps
+      await _kioskFlutterPlugin.openSettings('android.settings.action.ACTION_MANAGE_DEFAULT_APPS_SETTINGS');
+      // Consider refreshing default launcher status after returning from settings
+      // Future.delayed(const Duration(seconds: 1), _checkIfDefaultLauncher);
+    } catch (e) {
+      debugPrint('Failed to open home settings: $e');
+    }
+  }
+
   Future<void> _toggleKioskMode() async {
     if (!_missingPermissions.isEmpty) {
       debugPrint('Cannot toggle kiosk mode: Not all permissions are granted.');
-      // Optionally, show a snackbar or dialog to the user
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please grant all missing permissions to enable kiosk mode.')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please grant all missing permissions to enable kiosk mode.')),
+        );
+      }
       return;
     }
 
@@ -96,14 +134,17 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       if (_isKioskModeActive) {
         await _kioskFlutterPlugin.stopKioskMode();
       } else {
-        if (_missingPermissions.isEmpty) { // Only start if permissions are granted
+        // Redundant check, already handled by the top if, but kept for clarity
+        // if (_missingPermissions.isEmpty) { 
           await _kioskFlutterPlugin.startKioskMode();
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Please grant all permissions to start kiosk mode.')),
-          );
-          return; // Don't try to refresh status if we didn't attempt to start
-        }
+        // } else {
+        //   if (mounted) {
+        //     ScaffoldMessenger.of(context).showSnackBar(
+        //       const SnackBar(content: Text('Please grant all permissions to start kiosk mode.')),
+        //     );
+        //   }
+        //   return; 
+        // }
       }
     } on PlatformException catch (e) {
       debugPrint('Failed to toggle kiosk mode: ${e.message}');
@@ -115,71 +156,36 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    final bool _allPermissionsGranted = _missingPermissions.isEmpty;
     // Determine if the kiosk mode button should be enabled
-    final bool isKioskToggleButtonEnabled = _missingPermissions.isEmpty;
+    final bool isKioskToggleButtonEnabled = _allPermissionsGranted; 
 
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
           title: const Text('Kiosk Plugin Example'),
         ),
-        body: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Text(_kioskModeStatusText, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 20),
-                const Text('Missing Permissions:', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                if (_missingPermissions.isEmpty)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 8.0),
-                    child: Text('All required permissions are granted.'),
-                  )
-                else
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: _missingPermissions.length,
-                    itemBuilder: (context, index) {
-                      final permission = _missingPermissions[index];
-                      return Card(
-                        margin: const EdgeInsets.symmetric(vertical: 4.0),
-                        child: ListTile(
-                          title: Text(permission['label'] ?? 'Unknown Permission'),
-                          trailing: ElevatedButton(
-                            onPressed: () {
-                              final String? permissionType = permission['type'];
-                              if (permissionType != null) {
-                                _kioskFlutterPlugin.openPermissionSettings(permissionType);
-                              } else {
-                                debugPrint('Cannot open settings: permission type is null.');
-                              }
-                            },
-                            child: const Text('Enable'),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: _fetchMissingPermissions,
-                  child: const Text('Refresh Permissions List'),
+        body: (_allPermissionsGranted && _isKioskModeActive)
+            ? const Center(
+                child: Text(
+                  'Normal Functioning',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: isKioskToggleButtonEnabled ? _toggleKioskMode : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: isKioskToggleButtonEnabled ? null : Colors.grey,
-                  ),
-                  child: Text(_isKioskModeActive ? 'Stop Kiosk Mode' : 'Start Kiosk Mode'),
+              )
+            : Center(
+                child: PermissionsAndKioskControlSection(
+                  missingPermissions: _missingPermissions,
+                  onOpenPermissionSettings: (String permissionType) {
+                    _kioskFlutterPlugin.openPermissionSettings(permissionType);
+                  },
+                  onRefreshPermissions: _fetchMissingPermissions,
+                  isKioskModeActive: _isKioskModeActive,
+                  isKioskToggleButtonEnabled: isKioskToggleButtonEnabled,
+                  onToggleKioskMode: _toggleKioskMode,
+                  kioskModeStatusText: _kioskModeStatusText,
                 ),
-              ],
-            ),
-          ),
-        ),
+              ),
       ),
     );
   }

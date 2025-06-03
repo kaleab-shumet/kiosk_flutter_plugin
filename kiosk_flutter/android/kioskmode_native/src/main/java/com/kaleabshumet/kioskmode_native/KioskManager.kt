@@ -55,7 +55,7 @@ class KioskManager(private val context: Context) {
         if (!Settings.canDrawOverlays(context)) {
             list.add(PermissionItem("Draw over other apps", PermissionType.OVERLAY))
         }
-        if (!isDefaultLauncher()) {
+        if (!isSetAsDefaultLauncher()) {
             list.add(PermissionItem("Set as Default Launcher", PermissionType.HOME))
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && !hasUsageStatsPermission()) {
@@ -77,11 +77,29 @@ class KioskManager(private val context: Context) {
         return mode == AppOpsManager.MODE_ALLOWED
     }
 
-    private fun isDefaultLauncher(): Boolean {
+    fun isSetAsDefaultLauncher(): Boolean {
         val pm = context.packageManager
         val intent = Intent(Intent.ACTION_MAIN).apply { addCategory(Intent.CATEGORY_HOME) }
         val resolveInfo = pm.resolveActivity(intent, PackageManager.MATCH_DEFAULT_ONLY)
         return resolveInfo?.activityInfo?.packageName == context.packageName
+    }
+
+    fun openSettings(activity: Activity, settingAction: String) {
+        try {
+            val intent = Intent(settingAction)
+            if (intent.resolveActivity(activity.packageManager) != null) {
+                activity.startActivity(intent)
+            } else {
+                // Fallback or error logging if the setting action is not recognized
+                android.util.Log.w("KioskManager", "No activity found to handle setting: $settingAction")
+                // Optionally, try a more generic settings screen
+                // activity.startActivity(Intent(Settings.ACTION_SETTINGS))
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("KioskManager", "Error opening settings: $settingAction", e)
+            // Rethrow or handle as appropriate for your plugin's error strategy
+            throw e 
+        }
     }
 
     fun openPermissionScreen(activity: Activity, type: PermissionType) {
