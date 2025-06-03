@@ -1,0 +1,2 @@
+include ':kiosk_library'
+project(':kiosk_library').projectDir = new File(rootDir, 'android/kiosk_library/')
