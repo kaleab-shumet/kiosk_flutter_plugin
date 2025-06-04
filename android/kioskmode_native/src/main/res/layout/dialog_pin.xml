@@ -28,39 +28,47 @@
         android:gravity="center"
         android:layout_marginBottom="16dp" />
 
-    <EditText
-        android:id="@+id/pinEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="PIN"
-        android:inputType="numberPassword"
-        android:textColor="@android:color/black"
-        android:textColorHint="@android:color/darker_gray"
-        android:background="@android:drawable/edit_text"
-        android:textSize="18sp"
-        android:padding="16dp"
-        android:gravity="center" />
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="end"
-        android:layout_marginTop="24dp">
+        android:gravity="center_vertical"
+        android:layout_marginBottom="16dp">
+
+        <EditText
+            android:id="@+id/pinEditText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="PIN"
+            android:inputType="numberPassword"
+            android:textColor="@android:color/black"
+            android:textColorHint="@android:color/darker_gray"
+            android:background="@android:drawable/edit_text"
+            android:textSize="24sp"
+            android:padding="16dp"/>
 
         <Button
             android:id="@+id/okButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="OK"
-            style="@android:style/Widget.Material.Button" />
+            style="@android:style/Widget.Material.Button"
+            android:layout_marginStart="8dp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end"
+        android:layout_marginTop="16dp">
 
         <Button
             android:id="@+id/cancelButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Cancel"
-            android:layout_marginStart="16dp"
             style="@android:style/Widget.Material.Button" />
     </LinearLayout>
 

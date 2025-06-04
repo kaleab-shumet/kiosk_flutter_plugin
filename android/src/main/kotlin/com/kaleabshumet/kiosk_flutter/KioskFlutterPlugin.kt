@@ -1,4 +1,4 @@
-package com.example.kiosk_flutter
+package com.kaleabshumet.kiosk_flutter
 
 import android.app.Activity
 import android.content.Context

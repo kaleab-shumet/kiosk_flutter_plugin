@@ -15,7 +15,7 @@ import android.view.LayoutInflater // Required for inflating dialog layout
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
-import com.example.kiosk_flutter.R // Assuming R file is accessible, adjust if needed
+import com.kaleabshumet.kiosk_flutter.R // Assuming R file is accessible, adjust if needed
 
 // Data classes and enums can be top-level or nested if preferred
 data class PermissionItem(val label: String, val type: PermissionType)
@@ -177,7 +177,7 @@ class KioskManager(private val context: Context) {
 
         val dialog = AlertDialog.Builder(activity)
             .setView(dialogView)
-            .setCancelable(false)
+            .setCancelable(true)
             .create()
 
         okButton.setOnClickListener {

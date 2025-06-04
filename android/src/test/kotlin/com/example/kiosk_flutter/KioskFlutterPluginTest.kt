@@ -1,4 +1,4 @@
-package com.example.kiosk_flutter
+package com.kaleabshumet.kiosk_flutter
 
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
