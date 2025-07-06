@@ -141,13 +141,7 @@ class KioskManager(private val context: Context) {
         prefs.edit().putBoolean(PREF_KIOSK_MODE, currentKioskMode).apply()
         // prefs.edit().remove("kiosk_target_app_package").apply() // Clear target if set
 
-        // Attempt to clear this app as the default launcher
-        try {
-            activity.packageManager.clearPackagePreferredActivities(activity.packageName)
-        } catch (e: Exception) {
-            // Log or handle exception if necessary, e.g., security exception if not allowed
-            android.util.Log.e("KioskManager", "Failed to clear preferred activities", e)
-        }
+        
     }
 
     // --- UI Management for Kiosk Mode ---
